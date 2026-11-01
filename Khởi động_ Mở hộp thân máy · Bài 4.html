@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Khởi động: Mở hộp thân máy · Bài 4</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#1b1f2a;--muted:#5b6475;--card:#ffffff;--line:#c9cfdd;--accent:#405de6;--on:#1fb865;--off:#9aa3b5;--case:#e9ecf4;--board:#2d7a58}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151d;--fg:#eceff6;--muted:#a4adbf;--card:#1b2030;--line:#3a4256;--accent:#7b93ff;--on:#3ddc84;--off:#6b7488;--case:#222839;--board:#1f5a42}}
+:root[data-theme="dark"]{--bg:#12151d;--fg:#eceff6;--muted:#a4adbf;--card:#1b2030;--line:#3a4256;--accent:#7b93ff;--on:#3ddc84;--off:#6b7488;--case:#222839;--board:#1f5a42}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+header{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+h1{font-size:1.35rem;margin:0 0 2px}
+.sub{color:var(--muted);font-size:.9rem;margin:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.scroll{overflow-x:auto}
+svg{display:block;width:100%;height:auto;min-width:520px}
+.case{fill:var(--case);stroke:var(--line);stroke-width:3}
+.board{fill:var(--board)}
+.part{cursor:pointer;outline:none}
+.part .b{stroke:rgba(0,0,0,.35);stroke-width:2}
+.part:hover .b,.part:focus .b,.part.sel .b{stroke:#ffd54a;stroke-width:4}
+.part text{fill:#fff;font-size:14px;font-weight:700;pointer-events:none;text-anchor:middle}
+.tick{opacity:0;fill:#ffd54a;font-size:16px!important}
+.part.seen .tick{opacity:1}
+.trace{fill:none;stroke:#ffd54a;stroke-width:3;stroke-dasharray:6 8;opacity:.9}
+.power{stroke:#ff9f43}
+svg.open .trace{animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-28}}
+.fan{transform-box:fill-box;transform-origin:center;animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cpuglow{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.lid{transition:transform .9s ease,opacity .9s ease}
+svg.open .lid{transform:translateY(-440px);opacity:0;pointer-events:none}
+.lid rect{fill:#8d96ad;stroke:#5b6475;stroke-width:3}
+.lid text{fill:#fff;font-size:20px;font-weight:700;text-anchor:middle}
+.info h2{margin:0 0 4px;font-size:1.1rem}
+.info p{margin:4px 0}
+.prog{color:var(--muted);font-size:.9rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Khởi động: Mở hộp thân máy</h1>
+    <p class="sub">Tin học 11 – Kết nối tri thức · Bài 4. Bên trong máy tính</p>
+  </div>
+  <button id="theme" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button>
+</header>
+
+<!-- BƯỚC 1 -->
+<section>
+  <div class="card">
+    <div class="row"><button class="pri" id="openBtn">Mở nắp thân máy</button><span class="prog" id="prog">Bấm “Mở nắp”, rồi chạm vào từng linh kiện.</span></div>
+    <div class="scroll">
+    <svg id="scene" viewBox="0 0 720 400" role="img" aria-label="Bên trong thân máy tính gồm CPU, RAM, ổ lưu trữ, card đồ họa, bo mạch chủ và nguồn">
+      <rect class="case" x="20" y="20" width="680" height="360" rx="16"/>
+      <g id="parts">
+        <g class="part" data-k="mb" tabindex="0" role="button" aria-label="Bo mạch chủ">
+          <rect class="b board" x="50" y="45" width="480" height="300" rx="8"/>
+          <text x="440" y="75">BO MẠCH CHỦ</text><text class="tick" x="508" y="75">✔</text>
+        </g>
+        <path class="trace" d="M220 150H270"/>
+        <path class="trace" d="M175 200V270"/>
+        <path class="trace" d="M220 178H320V258H350"/>
+        <path class="trace power" d="M550 300H530V200H450"/>
+        <g class="part" data-k="cpu" tabindex="0" role="button" aria-label="CPU">
+          <rect class="b" x="130" y="110" width="90" height="90" rx="8" fill="#405de6"/>
+          <rect class="cpuglow" x="146" y="126" width="58" height="58" rx="6" fill="none" stroke="#fff" stroke-width="2"/>
+          <text x="175" y="160">CPU</text><text class="tick" x="208" y="126">✔</text>
+        </g>
+        <g class="part" data-k="ram" tabindex="0" role="button" aria-label="RAM">
+          <rect class="b" x="270" y="92" width="18" height="116" rx="3" fill="#833ab4"/>
+          <rect class="b" x="296" y="92" width="18" height="116" rx="3" fill="#833ab4"/>
+          <text x="292" y="230">RAM</text><text class="tick" x="332" y="110">✔</text>
+        </g>
+        <g class="part" data-k="ssd" tabindex="0" role="button" aria-label="Ổ lưu trữ">
+          <rect class="b" x="350" y="240" width="130" height="36" rx="6" fill="#c13584"/>
+          <text x="415" y="263">Ổ SSD/HDD</text><text class="tick" x="468" y="256">✔</text>
+        </g>
+        <g class="part" data-k="gpu" tabindex="0" role="button" aria-label="Card đồ họa">
+          <rect class="b" x="80" y="270" width="260" height="56" rx="6" fill="#d9480f"/>
+          <g transform="translate(140 298)"><g class="fan"><circle r="18" fill="none" stroke="#fff" stroke-width="2"/><path d="M-16 0H16M0-16V16" stroke="#fff" stroke-width="3"/></g></g>
+          <g transform="translate(270 298)"><g class="fan"><circle r="18" fill="none" stroke="#fff" stroke-width="2"/><path d="M-16 0H16M0-16V16" stroke="#fff" stroke-width="3"/></g></g>
+          <text x="205" y="303">CARD ĐỒ HỌA</text><text class="tick" x="326" y="288">✔</text>
+        </g>
+        <g class="part" data-k="psu" tabindex="0" role="button" aria-label="Nguồn máy tính">
+          <rect class="b" x="550" y="245" width="130" height="110" rx="8" fill="#455a64"/>
+          <g transform="translate(615 292)"><g class="fan"><circle r="28" fill="none" stroke="#fff" stroke-width="2"/><path d="M-26 0H26M0-26V26M-18-18L18 18M-18 18L18-18" stroke="#fff" stroke-width="2"/></g></g>
+          <text x="615" y="345">NGUỒN</text><text class="tick" x="666" y="265">✔</text>
+        </g>
+      </g>
+      <g class="lid"><rect x="20" y="20" width="680" height="360" rx="16"/><text x="360" y="205">Bên trong máy tính có gì?</text></g>
+    </svg>
+    </div>
+  </div>
+  <div class="card info" id="info" aria-live="polite">
+    <h2>Chọn một linh kiện</h2>
+    <p>Mở nắp, rồi chạm vào CPU, RAM, ổ lưu trữ, card đồ họa, bo mạch chủ hoặc nguồn để xem chức năng và thông số đo hiệu năng.</p>
+  </div>
+  </section>
+
+</div>
+
+<script>
+var $ = function(s,r){return (r||document).querySelector(s)};
+var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var parts = {
+  cpu:["CPU (bộ xử lí)","Xử lí lệnh, thực hiện tính toán và điều khiển hoạt động của máy.","Tốc độ xung nhịp (GHz), số nhân, số luồng."],
+  ram:["RAM (bộ nhớ trong)","Lưu tạm chương trình và dữ liệu đang xử lí, truy cập rất nhanh; dữ liệu mất khi tắt máy.","Dung lượng (GB), tốc độ."],
+  ssd:["Ổ lưu trữ (SSD/HDD)","Lưu dữ liệu lâu dài, kể cả khi tắt máy.","Dung lượng, tốc độ đọc/ghi."],
+  gpu:["Card đồ họa","Xử lí hình ảnh, video và đồ họa để hiển thị lên màn hình.","Dung lượng bộ nhớ đồ họa, xung nhịp."],
+  mb:["Bo mạch chủ","Gắn kết các thiết bị và truyền tín hiệu giữa chúng.","Loại khe cắm CPU, số khe cắm RAM, các chuẩn kết nối."],
+  psu:["Nguồn máy tính","Chuyển điện từ ổ cắm thành điện áp phù hợp để cấp cho các thiết bị.","Công suất (W)."]
+};
+var seen = {}, scene = $("#scene");
+$("#openBtn").onclick = function(){
+  var open = scene.classList.toggle("open");
+  this.textContent = open ? "Đóng nắp" : "Mở nắp thân máy";
+  var n = Object.keys(seen).length;
+  $("#prog").textContent = open ? (n ? "Đã khám phá " + n + "/6 linh kiện." : "Đã khám phá 0/6 linh kiện. Hãy chạm vào từng linh kiện.") : "Bấm “Mở nắp”, rồi chạm vào từng linh kiện.";
+};
+function pick(g){
+  if(!scene.classList.contains("open")) return;
+  var k = g.dataset.k, p = parts[k];
+  $$(".part").forEach(function(x){x.classList.remove("sel")});
+  g.classList.add("sel"); g.classList.add("seen"); seen[k] = 1;
+  $("#info").innerHTML = "<h2></h2><p></p><p></p>";
+  var e = $$("#info h2, #info p");
+  e[0].textContent = p[0];
+  e[1].innerHTML = "<b>Chức năng:</b> " + p[1];
+  e[2].innerHTML = "<b>Thông số hiệu năng:</b> " + p[2];
+  var n = Object.keys(seen).length;
+  $("#prog").textContent = n === 6 ? "Giỏi lắm! Em đã khám phá đủ 6/6 linh kiện." : "Đã khám phá " + n + "/6 linh kiện.";
+}
+$$(".part").forEach(function(g){
+  g.addEventListener("click", function(e){ e.stopPropagation(); pick(g); });
+  g.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(g); } });
+});
+
+// Giao diện sáng/tối
+$("#theme").addEventListener("click", function(){
+  var d = document.documentElement, cur = d.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  d.dataset.theme = cur === "dark" ? "light" : "dark";
+});
+</script>
+</body>
+</html>
